@@ -1,12 +1,8 @@
-# app.py
-from flask import Flask, render_template, request
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
 import plotly.express as px
-import plotly.io as pio
-
-app = Flask(__name__)
+import streamlit as st
 
 # Load dataset
 data = pd.read_csv('datapendidikan.csv', sep=';')
@@ -24,32 +20,37 @@ def train_model(filtered_data):
     model.fit(X, y)
     return model
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    provinces = sorted(data['Provinsi'].unique())
-    education_levels = sorted(data['Jenjang Pendidikan'].unique())
-    if request.method == 'POST':
-        provinsi = request.form['provinsi']
-        jenjang = request.form['jenjang']
-        tahun_prediksi = int(request.form['tahun'])
+# Streamlit UI
+st.title("Prediksi Presentase Peserta Didik Berdasarkan Tahun")
 
-        # Filter data
-        filtered_data = data[(data['Provinsi'] == provinsi) & (data['Jenjang Pendidikan'] == jenjang)]
+# Pilihan dropdown
+provinces = sorted(data['Provinsi'].unique())
+education_levels = sorted(data['Jenjang Pendidikan'].unique())
 
+provinsi = st.selectbox("Pilih Provinsi:", provinces)
+jenjang = st.selectbox("Pilih Jenjang Pendidikan:", education_levels)
+tahun_prediksi = st.number_input("Masukkan Tahun Prediksi:", min_value=2023, step=1)
+
+# Tombol prediksi
+if st.button("Prediksi"):
+    # Filter data
+    filtered_data = data[(data['Provinsi'] == provinsi) & (data['Jenjang Pendidikan'] == jenjang)]
+
+    if filtered_data.empty:
+        st.warning("Data tidak tersedia untuk kombinasi tersebut.")
+    else:
         # Train model
         model = train_model(filtered_data)
 
         # Predict
         prediksi = model.predict([[tahun_prediksi]])[0]
+        
+        # Hasil prediksi
+        st.success(f"Prediksi Presentase Peserta Didik pada Tahun {tahun_prediksi} di {provinsi} untuk Jenjang {jenjang}: {prediksi:.2f}%")
 
-        # Create Plot
-        fig = px.line(filtered_data, x='Tahun', y='Presentase peserta didik', title=f'Trend {jenjang} di {provinsi}')
-        fig.add_scatter(x=[tahun_prediksi], y=[prediksi], mode='markers', name='Prediksi', marker=dict(color='red'))
-        plot_html = pio.to_html(fig, full_html=False)
-
-        return render_template('result.html', provinsi=provinsi, jenjang=jenjang, tahun=tahun_prediksi, prediksi=prediksi, plot_html=plot_html)
-
-    return render_template('index.html', provinces=provinces, education_levels=education_levels)
-
-if __name__ == '__main__':
-    app.run(debug=True)
+        # Plot grafik
+        fig = px.line(filtered_data, x='Tahun', y='Presentase peserta didik',
+                       title=f'Trend {jenjang} di {provinsi}')
+        fig.add_scatter(x=[tahun_prediksi], y=[prediksi], mode='markers',
+                         name='Prediksi', marker=dict(color='red'))
+        st.plotly_chart(fig)
