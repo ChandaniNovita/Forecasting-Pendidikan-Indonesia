@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Prediksi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Hasil Prediksi</h1>
+        <p>Prediksi persentase peserta didik untuk <strong>{{ jenjang }}</strong> di <strong>{{ provinsi }}</strong> pada tahun <strong>{{ tahun }}</strong> adalah: <strong>{{ prediksi|round(2) }}%</strong></p>
+        <div class="plot">{{ plot_html|safe }}</div>
+        <a href="/">Kembali</a>
+    </div>
+</body>
+</html>

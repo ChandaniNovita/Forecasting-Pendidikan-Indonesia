@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forecasting Pendidikan</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Sistem Forecasting Pendidikan</h1>
+        <form method="POST">
+            <label for="provinsi">Pilih Provinsi:</label>
+            <select id="provinsi" name="provinsi" required>
+                {% for province in provinces %}
+                    <option value="{{ province }}">{{ province }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="jenjang">Pilih Jenjang Pendidikan:</label>
+            <select id="jenjang" name="jenjang" required>
+                {% for level in education_levels %}
+                    <option value="{{ level }}">{{ level }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="tahun">Masukkan Tahun Prediksi:</label>
+            <input type="number" id="tahun" name="tahun" required>
+
+            <button type="submit">Prediksi</button>
+        </form>
+    </div>
+</body>
+</html>
